@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Localizador de Credores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: proposta em coluna única; a demonstração do painel ocupa largura maior e é interativa */
+:root{
+  --bg:#f5f7f6; --paper:#ffffff; --ink:#18221f; --muted:#5b6762; --line:#dde3e0;
+  --accent:#0f5c56; --accent-soft:#e3efec; --amber:#a86a12; --amber-soft:#f8eedd;
+  --ok:#2f7d4a; --ok-soft:#e4f2e8; --bad:#a3392f; --bad-soft:#f6e3e0;
+  --side:#14302c; --side-ink:#d6e6e2; --side-active:#21504a;
+  --f-display:"Literata",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111816; --paper:#18211e; --ink:#e6ece9; --muted:#9aa8a2; --line:#2a3632;
+  --accent:#5cc0b4; --accent-soft:#1d332f; --amber:#e0a54a; --amber-soft:#3a2e1a;
+  --ok:#6cc58a; --ok-soft:#1d3324; --bad:#e8857a; --bad-soft:#3a2220;
+  --side:#0c1312; --side-ink:#b9cbc6; --side-active:#1d3833; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --paper:#18211e; --ink:#e6ece9; --muted:#9aa8a2; --line:#2a3632;
+  --accent:#5cc0b4; --accent-soft:#1d332f; --amber:#e0a54a; --amber-soft:#3a2e1a;
+  --ok:#6cc58a; --ok-soft:#1d3324; --bad:#e8857a; --bad-soft:#3a2220;
+  --side:#0c1312; --side-ink:#b9cbc6; --side-active:#1d3833; color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body)}
+.wrap{max-width:880px;margin:0 auto;padding-inline:20px;padding-block:48px 80px;display:flex;flex-direction:column;gap:60px}
+.wide{max-width:1120px;margin-inline:auto;width:100%}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(2rem,5vw,2.9rem);font-weight:700}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:600;font-family:var(--f-body)}
+p{margin:0;max-width:65ch}
+.eyebrow{font:500 .75rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+section{display:flex;flex-direction:column;gap:18px}
+.lede{font-size:1.1rem;color:var(--muted)}
+.verdict{font-weight:600;font-size:1.05rem;border-left:3px solid var(--accent);padding-left:14px}
+.meta{color:var(--muted);font-size:.85rem}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+tr.total td{font-weight:600;background:var(--bg)}
+.stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.stat b{display:block;font:700 1.9rem/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.88rem}
+.tag{display:inline-block;font:500 .78rem/1.2 var(--f-mono);padding:3px 7px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+
+/* desenho do fluxo */
+.flow{display:grid;grid-template-columns:150px 1fr;border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden}
+.lane-name{padding:16px;font:600 .85rem/1.3 var(--f-body);background:var(--bg);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.lane-name small{font:400 .75rem var(--f-mono);color:var(--muted)}
+.lane{padding:16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.flow > :nth-last-child(-n+2){border-bottom:0}
+.node{border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.88rem;background:var(--paper);display:flex;flex-direction:column;gap:2px;max-width:170px}
+.node b{font-weight:600}
+.node span{font-size:.76rem;color:var(--muted)}
+.node.us{border-color:var(--accent);background:var(--accent-soft)}
+.node.dr{border-color:var(--amber);background:var(--amber-soft)}
+.arrow{color:var(--muted);font-family:var(--f-mono)}
+.back{font:500 .8rem var(--f-mono);color:var(--accent);width:100%}
+
+/* demonstração do painel */
+.demo{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);box-shadow:0 12px 40px -24px rgba(10,40,36,.45)}
+.ghlbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--line);font:400 .78rem var(--f-mono);color:var(--muted);flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.app{display:grid;grid-template-columns:210px 1fr;min-height:560px}
+.side{background:var(--side);color:var(--side-ink);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+.brand{font:700 1rem var(--f-display);color:var(--side-ink);padding:0 8px 14px;display:flex;flex-direction:column;gap:2px}
+.brand small{font:400 .7rem var(--f-mono);opacity:.7;letter-spacing:.06em}
+.nav{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border-radius:6px;font:500 .9rem var(--f-body);cursor:pointer;color:var(--side-ink)}
+.nav:hover{background:var(--side-active)}
+.nav[aria-current="page"]{background:var(--side-active);color:#ffffff}
+.nav:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.badge{font:500 .7rem var(--f-mono);background:var(--amber);color:#1b1408;border-radius:999px;padding:1px 7px}
+.side-foot{margin-top:auto;padding:12px 8px 0;font:400 .72rem/1.5 var(--f-mono);opacity:.75;border-top:1px solid var(--side-active)}
+.screen{padding:22px;display:flex;flex-direction:column;gap:16px;min-width:0;background:var(--bg)}
+.screen-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.screen-head h3{font:700 1.3rem var(--f-display)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kpi b{display:block;font:700 1.5rem/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.kpi span{font-size:.78rem;color:var(--muted)}
+.btn{font:600 .88rem var(--f-body);padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.field{display:flex;flex-direction:column;gap:5px;flex:1 1 180px;min-width:0}
+.field label{font-size:.78rem;color:var(--muted)}
+.field input,.field select{font:400 .9rem var(--f-body);padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);min-width:0}
+.drop{border:2px dashed var(--line);border-radius:8px;padding:22px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:6px;align-items:center}
+.drop b{color:var(--ink)}
+.credit{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.credit .val{font:500 1.05rem var(--f-mono);font-variant-numeric:tabular-nums}
+.cand{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.cand.top{border-color:var(--accent);background:var(--accent-soft)}
+.cand.out{opacity:.55}
+.score{font:500 1rem var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font-size:.74rem;padding:2px 7px;border-radius:999px;background:var(--ok-soft);color:var(--ok)}
+.chip.warn{background:var(--amber-soft);color:var(--amber)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.pill{font:500 .72rem/1 var(--f-mono);padding:5px 8px;border-radius:4px;white-space:nowrap}
+.pill.go{background:var(--accent);color:var(--paper)}
+.pill.wait{background:var(--amber-soft);color:var(--amber)}
+.pill.no{background:var(--bad-soft);color:var(--bad)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.sent{background:var(--ok);color:var(--paper)}
+.toast{font-size:.88rem;padding:10px 12px;border-radius:6px;background:var(--ok-soft);color:var(--ok)}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;font-size:.85rem}
+.bar .track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:5px}
+.bar .n{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.progress{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.progress div{height:100%;background:var(--amber)}
+
+/* calculadora */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.calc .card{gap:16px}
+.slider{display:flex;flex-direction:column;gap:6px}
+.slider label{display:flex;justify-content:space-between;font-size:.9rem}
+.slider output{font:500 .9rem var(--f-mono);font-variant-numeric:tabular-nums}
+.slider input{accent-color:var(--accent);width:100%}
+.result b{display:block;font:700 2.1rem/1.1 var(--f-display);font-variant-numeric:tabular-nums;color:var(--accent)}
+.result span{color:var(--muted);font-size:.88rem}
+
+.price{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.price .card b{font:700 2rem/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.price ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:18px}
+
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{flex-direction:row;overflow-x:auto;padding:10px;gap:6px}
+  .brand,.side-foot{display:none}
+  .nav{white-space:nowrap}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .flow{grid-template-columns:1fr}
+  .flow > .lane-name{border-bottom:0}
+}
+@media (max-width:640px){
+  .stat-row,.calc,.price{grid-template-columns:1fr}
+  .cand{grid-template-columns:42px 1fr}
+  .cand .pill{grid-column:2;justify-self:start}
+  .bar{grid-template-columns:100px 1fr 44px}
+  .screen{padding:14px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Proposta · Cessão de crédito em falências</span>
+  <h1>Localizador de Credores</h1>
+  <p class="lede">Um painel dentro do GHL que recebe a lista da falência, encontra a pessoa certa entre os homônimos e entrega o contato pronto para a conversa. Os créditos pequenos, que hoje ficam parados no processo, passam a valer o trabalho.</p>
+</header>
+
+<section>
+  <span class="eyebrow">O problema hoje</span>
+  <h2>Achar o credor custa o mesmo para R$ 5 mil e para R$ 100 mil</h2>
+  <div class="stat-row">
+    <div class="stat"><b>100</b><span>mensagens enviadas na mão</span></div>
+    <div class="stat"><b>~8</b><span>respostas</span></div>
+    <div class="stat"><b>1</b><span>credor certo encontrado</span></div>
+  </div>
+  <p>A relação de credores quase sempre traz só nome e valor. A busca devolve centenas de homônimos e cada um recebe mensagem copiada e colada. Por isso os créditos até R$ 10 mil ficam na mesa, mesmo sendo os que mais aceitam proposta.</p>
+</section>
+
+<section>
+  <span class="eyebrow">O desenho</span>
+  <h2>Quem faz cada parte</h2>
+  <p class="verdict">O painel faz a busca e o filtro. O GHL faz a conversa. O Dr. só aprova.</p>
+  <div class="flow">
+    <div class="lane-name">Dr. João<small>2 cliques</small></div>
+    <div class="lane">
+      <div class="node dr"><b>Sobe a lista</b><span>PDF, planilha ou nome</span></div><span class="arrow">→</span>
+      <div class="node dr"><b>Aprova os candidatos</b><span>em lote, 1 clique</span></div><span class="arrow">→</span>
+      <div class="node dr"><b>Atende os confirmados</b><span>reunião ou proposta</span></div>
+    </div>
+    <div class="lane-name">Painel<small>o que vamos construir</small></div>
+    <div class="lane">
+      <div class="node us"><b>Lê o edital</b><span>IA monta a lista</span></div><span class="arrow">→</span>
+      <div class="node us"><b>Busca na base</b><span>AP Informação</span></div><span class="arrow">→</span>
+      <div class="node us"><b>Ranqueia</b><span>nota com motivo</span></div><span class="arrow">→</span>
+      <div class="node us"><b>Envia em ondas</b><span>3 por vez</span></div>
+      <span class="back">↺ credor confirmado: os outros homônimos são cancelados sozinhos</span>
+    </div>
+    <div class="lane-name">GHL<small>sub-account Prisma</small></div>
+    <div class="lane">
+      <div class="node"><b>Recebe o contato</b><span>com etiqueta e dados</span></div><span class="arrow">→</span>
+      <div class="node"><b>WhatsApp oficial</b><span>mensagem de verificação</span></div><span class="arrow">→</span>
+      <div class="node"><b>IA confirma</b><span>é ou não é o credor</span></div><span class="arrow">→</span>
+      <div class="node"><b>Avisa o painel</b><span><span class="tag">credor-confirmado</span></span></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<section class="wide" style="padding-inline:20px;gap:18px" aria-labelledby="demo-title">
+  <div style="max-width:840px;margin-inline:auto;width:100%;display:flex;flex-direction:column;gap:10px">
+    <span class="eyebrow">Demonstração</span>
+    <h2 id="demo-title">Como o painel vai ficar</h2>
+    <p>Clique no menu da lateral para navegar. Na tela de aprovação, o botão funciona. Todos os nomes e números são fictícios.</p>
+  </div>
+
+  <div class="demo">
+    <div class="ghlbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>GHL · sub-account do escritório · menu lateral › Localizador de Credores</span></div>
+    <div class="app">
+      <nav class="side" aria-label="Menu do painel">
+        <div class="brand">Localizador<small>DE CREDORES</small></div>
+        <button class="nav" data-screen="inicio" aria-current="page" id="nav-inicio">Início</button>
+        <button class="nav" data-screen="nova" id="nav-nova">Nova busca</button>
+        <button class="nav" data-screen="aprovacao" id="nav-aprovacao">Aprovação <span class="badge" id="badge-aprov">37</span></button>
+        <button class="nav" data-screen="andamento" id="nav-andamento">Em andamento</button>
+        <button class="nav" data-screen="resultados" id="nav-resultados">Resultados</button>
+        <button class="nav" data-screen="config" id="nav-config">Configurações</button>
+        <div class="side-foot">Consultas no mês<br>412 de 1.000</div>
+      </nav>
+
+      <!-- INÍCIO -->
+      <div class="screen" data-panel="inicio">
+        <div class="screen-head"><h3>Início</h3><span class="meta">Atualizado agora</span></div>
+        <div class="kpis">
+          <div class="kpi"><b>3</b><span>falências ativas</span></div>
+          <div class="kpi"><b>214</b><span>créditos na base</span></div>
+          <div class="kpi"><b>58</b><span>credores confirmados</span></div>
+          <div class="kpi"><b>R$ 412 mil</b><span>em negociação</span></div>
+        </div>
+        <div class="card">
+          <h3>Falências</h3>
+          <div class="tbl" style="border:0"><table>
+            <thead><tr><th>Falência</th><th class="num">Créditos</th><th class="num">Confirmados</th><th>Progresso</th></tr></thead>
+            <tbody>
+              <tr><td>Metalúrgica Andrade S.A.</td><td class="num">214</td><td class="num">41</td><td><div class="progress"><div style="width:62%"></div></div></td></tr>
+              <tr><td>Transportes Vale Norte Ltda.</td><td class="num">96</td><td class="num">17</td><td><div class="progress"><div style="width:38%"></div></div></td></tr>
+              <tr><td>Têxtil São Bento S.A.</td><td class="num">132</td><td class="num">0</td><td><div class="progress"><div style="width:6%"></div></div></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card"><h3>Precisa da sua atenção</h3>
+          <div class="row"><span class="pill wait">37 créditos aguardando aprovação</span><span class="pill no">4 credores falecidos: buscar herdeiros?</span><span class="pill ok">6 confirmados acima de R$ 10 mil</span></div>
+        </div>
+      </div>
+
+      <!-- NOVA BUSCA -->
+      <div class="screen" data-panel="nova" hidden>
+        <div class="screen-head"><h3>Nova busca</h3></div>
+        <div class="card">
+          <h3>Subir lista da falência</h3>
+          <div class="drop"><b>Arraste o PDF do edital ou a planilha aqui</b><span class="meta">A IA lê o documento e monta a lista de credores para você conferir</span></div>
+        </div>
+        <div class="card">
+          <h3>Ou buscar um nome avulso</h3>
+          <div class="row">
+            <div class="field"><label for="f-nome">Nome do credor</label><input id="f-nome" value="Robson da Silva"></div>
+            <div class="field"><label for="f-empresa">Empresa devedora</label><input id="f-empresa" value="Metalúrgica Andrade S.A."></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="f-periodo">Período de trabalho</label><input id="f-periodo" value="2003 a 2008"></div>
+            <div class="field"><label for="f-cpf">CPF (se tiver)</label><input id="f-cpf" placeholder="000.000.000-00"></div>
+            <div class="field"><label for="f-valor">Valor do crédito</label><input id="f-valor" value="R$ 6.420,00"></div>
+          </div>
+          <div class="row" style="justify-content:space-between"><span class="meta">Custo estimado: 1 consulta</span><button class="btn primary" type="button" data-go="aprovacao" id="btn-buscar">Buscar credor</button></div>
+        </div>
+      </div>
+
+      <!-- APROVAÇÃO -->
+      <div class="screen" data-panel="aprovacao" hidden>
+        <div class="screen-head"><h3>Aprovação</h3><span class="meta">Crédito 1 de 37 · Metalúrgica Andrade S.A.</span></div>
+        <div class="card">
+          <div class="credit">
+            <div><strong>Robson da Silva</strong><div class="meta">Trabalhista · vínculo informado 2003 a 2008 · Contagem/MG</div></div>
+            <span class="val">R$ 6.420,00</span>
+          </div>
+          <div class="cand top"><span class="score">92</span>
+            <div><strong>Robson Alves da Silva · 47 anos</strong><div class="chips"><span class="chip">idade compatível</span><span class="chip">morou em Contagem</span><span class="chip">2 telefones ativos</span></div></div>
+            <span class="pill go" data-wave="1">Onda 1</span></div>
+          <div class="cand"><span class="score">71</span>
+            <div><strong>Robson Pereira da Silva · 52 anos</strong><div class="chips"><span class="chip">idade compatível</span><span class="chip warn">mora em SP</span></div></div>
+            <span class="pill go" data-wave="1">Onda 1</span></div>
+          <div class="cand"><span class="score">66</span>
+            <div><strong>Robson da Silva Costa · 44 anos</strong><div class="chips"><span class="chip">Minas Gerais</span><span class="chip warn">1 telefone</span></div></div>
+            <span class="pill go" data-wave="1">Onda 1</span></div>
+          <div class="cand"><span class="score">48</span>
+            <div><strong>Robson Ferreira da Silva · 58 anos</strong><div class="chips"><span class="chip warn">idade limite</span><span class="chip warn">mora no RJ</span></div></div>
+            <span class="pill wait">Onda 2</span></div>
+          <div class="cand out"><span class="score">12</span>
+            <div><strong>Robson da Silva · 23 anos</strong><div class="chips"><span class="chip bad">idade incompatível com 2003</span></div></div>
+            <span class="pill no">Descartado</span></div>
+          <div class="toast" id="toast" hidden>Onda 1 enviada: 3 contatos criados no GHL com a etiqueta <span class="tag">credito-onda-1</span>. Se ninguém confirmar em 48h, a onda 2 sai sozinha.</div>
+          <div class="row" style="justify-content:flex-end"><button class="btn" type="button" id="btn-ajustar">Ajustar</button><button class="btn primary" type="button" id="btn-aprovar">Aprovar e enviar onda 1</button></div>
+        </div>
+      </div>
+
+      <!-- EM ANDAMENTO -->
+      <div class="screen" data-panel="andamento" hidden>
+        <div class="screen-head"><h3>Em andamento</h3><span class="meta">Retorno do GHL em tempo real</span></div>
+        <div class="card"><div class="tbl" style="border:0"><table>
+          <thead><tr><th>Credor</th><th class="num">Valor</th><th>Onda</th><th>Situação</th></tr></thead>
+          <tbody>
+            <tr><td>Maria Aparecida Souza</td><td class="num">R$ 4.180</td><td>1</td><td><span class="pill ok">Confirmada · 2 homônimos cancelados</span></td></tr>
+            <tr><td>José Carlos Pereira</td><td class="num">R$ 8.900</td><td>2</td><td><span class="pill wait">Aguardando resposta · 31h</span></td></tr>
+            <tr><td>Antônio Ribeiro Lima</td><td class="num">R$ 23.500</td><td>1</td><td><span class="pill ok">Confirmado · atendimento do Dr.</span></td></tr>
+            <tr><td>Sebastião Moura</td><td class="num">R$ 5.300</td><td>1</td><td><span class="pill no">Falecido · buscar herdeiros</span></td></tr>
+            <tr><td>Luciana Prado Melo</td><td class="num">R$ 2.750</td><td>3</td><td><span class="pill wait">Aguardando resposta · 6h</span></td></tr>
+          </tbody>
+        </table></div></div>
+      </div>
+
+      <!-- RESULTADOS -->
+      <div class="screen" data-panel="resultados" hidden>
+        <div class="screen-head"><h3>Resultados</h3><span class="meta">Últimos 30 dias</span></div>
+        <div class="kpis">
+          <div class="kpi"><b>2,4</b><span>mensagens por credor achado</span></div>
+          <div class="kpi"><b>71%</b><span>acerto na onda 1</span></div>
+          <div class="kpi"><b>R$ 9,80</b><span>custo por credor achado</span></div>
+          <div class="kpi"><b>19</b><span>contratos assinados</span></div>
+        </div>
+        <div class="card"><h3>Funil do mês</h3>
+          <div class="bars">
+            <div class="bar"><span>Créditos buscados</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="n">214</span></div>
+            <div class="bar"><span>Candidatos aprovados</span><div class="track"><div class="fill" style="width:78%"></div></div><span class="n">167</span></div>
+            <div class="bar"><span>Responderam</span><div class="track"><div class="fill" style="width:41%"></div></div><span class="n">88</span></div>
+            <div class="bar"><span>Credor confirmado</span><div class="track"><div class="fill" style="width:27%"></div></div><span class="n">58</span></div>
+            <div class="bar"><span>Contrato assinado</span><div class="track"><div class="fill" style="width:9%"></div></div><span class="n">19</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="screen" data-panel="config" hidden>
+        <div class="screen-head"><h3>Configurações</h3></div>
+        <div class="card">
+          <div class="row">
+            <div class="field"><label for="c-corte">Acima deste valor vai para o atendimento do Dr.</label><input id="c-corte" value="R$ 10.000,00"></div>
+            <div class="field"><label for="c-onda">Candidatos por onda</label><select id="c-onda"><option>2</option><option selected>3</option><option>5</option></select></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="c-espera">Esperar antes da próxima onda</label><select id="c-espera"><option>24 horas</option><option selected>48 horas</option><option>72 horas</option></select></div>
+            <div class="field"><label for="c-limite">Limite de consultas no mês</label><input id="c-limite" value="1.000"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="c-nota">Nota mínima para enviar</label><input id="c-nota" value="40"></div>
+            <div class="field"><label for="c-herd">Credor falecido</label><select id="c-herd"><option selected>Buscar herdeiros automaticamente</option><option>Só avisar</option></select></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+<section>
+  <span class="eyebrow">Quanto isso destrava</span>
+  <h2>Simule o retorno dos créditos pequenos</h2>
+  <p>Ajuste os números para a realidade do escritório. A conta considera o processo pagando o valor integral do crédito.</p>
+  <div class="calc">
+    <div class="card">
+      <div class="slider"><label for="s-qtd">Créditos comprados por mês <output id="o-qtd">10</output></label><input type="range" id="s-qtd" min="2" max="60" step="1" value="10"></div>
+      <div class="slider"><label for="s-val">Valor médio do crédito <output id="o-val">R$ 6.000</output></label><input type="range" id="s-val" min="2000" max="10000" step="500" value="6000"></div>
+      <div class="slider"><label for="s-pct">Quanto paga ao credor <output id="o-pct">35%</output></label><input type="range" id="s-pct" min="15" max="60" step="5" value="35"></div>
+    </div>
+    <div class="card result" style="justify-content:center">
+      <div><span>Margem por mês</span><b id="r-mes">R$ 39.000</b></div>
+      <div><span>Margem em 12 meses</span><b id="r-ano" style="font-size:1.5rem">R$ 468.000</b></div>
+      <p class="meta" id="r-pay">O investimento se paga com 11 créditos.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Além do pedido</span>
+  <h2>O que mais está incluído</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Recurso</th><th>Por que importa</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Edital inteiro de uma vez</strong></td><td>Sobe o PDF da relação de credores e a lista fica pronta em minutos.</td></tr>
+      <tr><td><strong>Falecidos e herdeiros</strong></td><td>Processo de 20 anos tem muito credor falecido. O painel marca e busca os herdeiros. É um estoque que o mercado não trabalha.</td></tr>
+      <tr><td><strong>Corte por valor</strong></td><td>Até R$ 10 mil segue no automático. Acima disso, vai direto para o atendimento do Dr.</td></tr>
+      <tr><td><strong>Orçamento de consultas</strong></td><td>Mostra o custo antes de rodar uma lista grande e trava no limite do mês.</td></tr>
+      <tr><td><strong>Alerta de falência nova</strong></td><td>Acompanha os Diários Oficiais e avisa quando sai edital novo de credores.</td></tr>
+      <tr><td><strong>Monitor da carteira</strong></td><td>Depois do crédito comprado, acompanha o processo e avisa rateio e pagamento.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Base de dados</span>
+  <h2>AP Informação como motor de busca</h2>
+  <p class="verdict">Tem API completa a partir do plano Prata. A documentação é liberada depois do contato comercial.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>Situação</th></tr></thead>
+    <tbody>
+      <tr><td>API</td><td>REST/JSON, consultas em lote, webhooks e ambiente de teste</td></tr>
+      <tr><td>Plano com API</td><td>Prata ou Ouro. Preço sob consulta</td></tr>
+      <tr><td>Teste antes de contratar</td><td>Oferecem prova de conceito para planos com API</td></tr>
+      <tr><td>Fontes</td><td>Tribunais, Receita, birôs de crédito, cartórios, Detran e Diários Oficiais</td></tr>
+      <tr><td>Confirmar no teste</td><td>Busca por nome devolvendo CPF e telefones; óbito; vínculos familiares</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Cronograma e investimento</span>
+  <h2>Fases, prazos e valores</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Fase</th><th>O que sai no fim</th><th class="num">Horas</th><th class="num">Valor</th><th>Prazo de entrega</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. Teste de dados</strong></td><td>20 casos já resolvidos rodados na API. Medimos em quantos a pessoa certa aparece entre as 3 primeiras.</td><td class="num">10h</td><td class="num">R$ 2.500</td><td class="num">17/10/2026</td></tr>
+      <tr><td><strong>2. Painel essencial</strong></td><td>Instalação no GHL, nome avulso e planilha, busca, ranking e aprovação.</td><td class="num">68h</td><td class="num">R$ 17.000</td><td class="num">07/11/2026</td></tr>
+      <tr><td><strong>3. Ciclo completo</strong></td><td>Envio em ondas, retorno do GHL, cancelamento automático e tela de resultados.</td><td class="num">32h</td><td class="num">R$ 8.000</td><td class="num">21/11/2026</td></tr>
+      <tr><td><strong>4. Edital e herdeiros</strong></td><td>Leitura de PDF do edital e fluxo de credores falecidos.</td><td class="num">26h</td><td class="num">R$ 6.500</td><td class="num">28/11/2026</td></tr>
+      <tr><td><strong>5. Monitores</strong></td><td>Alerta de falência nova e acompanhamento da carteira.</td><td class="num">24h</td><td class="num">R$ 6.000</td><td class="num">12/12/2026</td></tr>
+      <tr class="total"><td>Total</td><td></td><td class="num">160h</td><td class="num">R$ 40.000</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p class="verdict">Regra da fase 1: se a pessoa certa ficar entre as 3 primeiras em menos de 60% dos casos, somamos outra fonte de dados antes de seguir.</p>
+
+  <div class="price">
+    <div class="card">
+      <span class="eyebrow">Desenvolvimento</span>
+      <b>R$ 40.000</b>
+      <ul>
+        <li>Fase 1: R$ 2.500 à vista, na aprovação</li>
+        <li>Se a fase 1 passar: R$ 11.250 de entrada</li>
+        <li>R$ 15.000 na entrega da fase 2</li>
+        <li>R$ 11.250 na entrega final</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="eyebrow">Manutenção mensal</span>
+      <b>R$ 1.500</b>
+      <ul>
+        <li>Servidor e banco de dados, com backup</li>
+        <li>Correção de erros sem limite de horas</li>
+        <li>Ajustes quando AP Informação ou GHL mudarem</li>
+        <li>Até 4h de melhorias por mês</li>
+        <li>Começa na entrega da fase 2</li>
+      </ul>
+    </div>
+  </div>
+  <p class="meta">Pagos direto pelo escritório, fora deste valor: plano da AP Informação, leitura de PDF por IA (centavos por documento) e o WhatsApp oficial no GHL. Funcionalidade nova fora do escopo: R$ 250 por hora.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Para começar</span>
+  <h2>O que precisamos</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>Quem</th><th>Prazo de entrega</th></tr></thead>
+    <tbody>
+      <tr><td>Planilha com 20 casos já resolvidos: nome como veio na lista e o CPF ou telefone certo</td><td>Dr. João</td><td class="num">10/10/2026</td></tr>
+      <tr><td>Contato com a AP Informação para liberar documentação e teste</td><td>Dr. João</td><td class="num">10/10/2026</td></tr>
+      <tr><td>2 ou 3 PDFs reais de edital ou relação de credores</td><td>Dr. João</td><td class="num">10/10/2026</td></tr>
+      <tr><td>Valor de corte entre o automático e o atendimento do Dr.</td><td>Dr. João</td><td class="num">17/10/2026</td></tr>
+      <tr><td>Autorizar a instalação do painel na sub-account</td><td>Prisma</td><td class="num">24/10/2026</td></tr>
+      <tr><td>Workflow que dispara com a etiqueta e devolve <span class="tag">credor-confirmado</span> ou <span class="tag">credor-errado</span></td><td>Prisma</td><td class="num">07/11/2026</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Cuidados</span>
+  <h2>Riscos e como tratamos</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Risco</th><th>Como tratamos</th></tr></thead>
+    <tbody>
+      <tr><td>Base de dados não trazer telefone a partir do nome</td><td>Descobrimos na fase 1, antes de construir o resto</td></tr>
+      <tr><td>Custo de consulta crescer</td><td>Consulta guardada e orçamento mensal travado no painel</td></tr>
+      <tr><td>LGPD</td><td>Registro de toda consulta feita. Valor do crédito nunca vai na primeira mensagem</td></tr>
+      <tr><td>Regras da OAB</td><td>Mensagem sai como empresa compradora de crédito, não como oferta de serviço jurídico. Texto validado pelo Dr.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<p class="foot">Proposta BobGrow · outubro de 2026 · válida por 15 dias.</p>
+</div>
+
+<script>
+(function(){
+  var navs=document.querySelectorAll('.nav');
+  var panels=document.querySelectorAll('[data-panel]');
+  function show(id){
+    panels.forEach(function(p){p.hidden=p.getAttribute('data-panel')!==id});
+    navs.forEach(function(n){ if(n.getAttribute('data-screen')===id){n.setAttribute('aria-current','page')} else {n.removeAttribute('aria-current')} });
+  }
+  navs.forEach(function(n){n.addEventListener('click',function(){show(n.getAttribute('data-screen'))})});
+  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){show(b.getAttribute('data-go'))})});
+
+  var aprovar=document.getElementById('btn-aprovar');
+  aprovar.addEventListener('click',function(){
+    document.querySelectorAll('[data-wave="1"]').forEach(function(p){p.className='pill sent';p.textContent='Enviado'});
+    document.getElementById('toast').hidden=false;
+    aprovar.disabled=true; aprovar.textContent='Onda 1 enviada';
+    document.getElementById('badge-aprov').textContent='36';
+  });
+
+  var fmt=function(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR')};
+  var q=document.getElementById('s-qtd'), v=document.getElementById('s-val'), p=document.getElementById('s-pct');
+  function calc(){
+    var n=+q.value, val=+v.value, pct=+p.value/100;
+    var m=val*(1-pct);
+    document.getElementById('o-qtd').textContent=n;
+    document.getElementById('o-val').textContent=fmt(val);
+    document.getElementById('o-pct').textContent=p.value+'%';
+    document.getElementById('r-mes').textContent=fmt(n*m);
+    document.getElementById('r-ano').textContent=fmt(n*m*12);
+    document.getElementById('r-pay').textContent='O investimento de R$ 40.000 se paga com '+Math.ceil(40000/m)+' créditos.';
+  }
+  [q,v,p].forEach(function(el){el.addEventListener('input',calc)});
+  calc();
+})();
+</script>
+</body>
+</html>
