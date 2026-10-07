@@ -168,7 +168,7 @@ tr.total td{font-weight:600;background:var(--bg)}
 <header style="display:flex;flex-direction:column;gap:14px">
   <span class="eyebrow">Proposta · Cessão de crédito em falências</span>
   <h1>Localizador de Credores</h1>
-  <p class="lede">Um painel dentro do GHL que recebe a lista da falência, encontra a pessoa certa entre os homônimos e entrega o contato pronto para a conversa. Os créditos pequenos, que hoje ficam parados no processo, passam a valer o trabalho.</p>
+  <p class="lede">Um painel dentro da Prisma que recebe a lista da falência, encontra a pessoa certa entre os homônimos e entrega o contato pronto para a conversa. Os créditos pequenos, que hoje ficam parados no processo, passam a valer o trabalho.</p>
 </header>
 
 <section>
@@ -185,7 +185,7 @@ tr.total td{font-weight:600;background:var(--bg)}
 <section>
   <span class="eyebrow">O desenho</span>
   <h2>Quem faz cada parte</h2>
-  <p class="verdict">O painel faz a busca e o filtro. O GHL faz a conversa. O Dr. só aprova.</p>
+  <p class="verdict">O painel faz a busca e o filtro. A Prisma faz a conversa. O Dr. só aprova.</p>
   <div class="flow">
     <div class="lane-name">Dr. João<small>2 cliques</small></div>
     <div class="lane">
@@ -201,7 +201,7 @@ tr.total td{font-weight:600;background:var(--bg)}
       <div class="node us"><b>Envia em ondas</b><span>3 por vez</span></div>
       <span class="back">↺ credor confirmado: os outros homônimos são cancelados sozinhos</span>
     </div>
-    <div class="lane-name">GHL<small>sub-account Prisma</small></div>
+    <div class="lane-name">Prisma<small>sub-account do escritório</small></div>
     <div class="lane">
       <div class="node"><b>Recebe o contato</b><span>com etiqueta e dados</span></div><span class="arrow">→</span>
       <div class="node"><b>WhatsApp oficial</b><span>mensagem de verificação</span></div><span class="arrow">→</span>
@@ -221,7 +221,7 @@ tr.total td{font-weight:600;background:var(--bg)}
   </div>
 
   <div class="demo">
-    <div class="ghlbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>GHL · sub-account do escritório · menu lateral › Localizador de Credores</span></div>
+    <div class="ghlbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Prisma · sub-account do escritório · menu lateral › Localizador de Credores</span></div>
     <div class="app">
       <nav class="side" aria-label="Menu do painel">
         <div class="brand">Localizador<small>DE CREDORES</small></div>
@@ -304,14 +304,14 @@ tr.total td{font-weight:600;background:var(--bg)}
           <div class="cand out"><span class="score">12</span>
             <div><strong>Robson da Silva · 23 anos</strong><div class="chips"><span class="chip bad">idade incompatível com 2003</span></div></div>
             <span class="pill no">Descartado</span></div>
-          <div class="toast" id="toast" hidden>Onda 1 enviada: 3 contatos criados no GHL com a etiqueta <span class="tag">credito-onda-1</span>. Se ninguém confirmar em 48h, a onda 2 sai sozinha.</div>
+          <div class="toast" id="toast" hidden>Onda 1 enviada: 3 contatos criados na Prisma com a etiqueta <span class="tag">credito-onda-1</span>. Se ninguém confirmar em 48h, a onda 2 sai sozinha.</div>
           <div class="row" style="justify-content:flex-end"><button class="btn" type="button" id="btn-ajustar">Ajustar</button><button class="btn primary" type="button" id="btn-aprovar">Aprovar e enviar onda 1</button></div>
         </div>
       </div>
 
       <!-- EM ANDAMENTO -->
       <div class="screen" data-panel="andamento" hidden>
-        <div class="screen-head"><h3>Em andamento</h3><span class="meta">Retorno do GHL em tempo real</span></div>
+        <div class="screen-head"><h3>Em andamento</h3><span class="meta">Retorno da Prisma em tempo real</span></div>
         <div class="card"><div class="tbl" style="border:0"><table>
           <thead><tr><th>Credor</th><th class="num">Valor</th><th>Onda</th><th>Situação</th></tr></thead>
           <tbody>
@@ -381,7 +381,7 @@ tr.total td{font-weight:600;background:var(--bg)}
     <div class="card result" style="justify-content:center">
       <div><span>Margem por mês</span><b id="r-mes">R$ 39.000</b></div>
       <div><span>Margem em 12 meses</span><b id="r-ano" style="font-size:1.5rem">R$ 468.000</b></div>
-      <p class="meta" id="r-pay">O investimento se paga com 11 créditos.</p>
+      <p class="meta" id="r-pay">O investimento de R$ 80.000 se paga com 21 créditos.</p>
     </div>
   </div>
 </section>
@@ -424,12 +424,12 @@ tr.total td{font-weight:600;background:var(--bg)}
   <div class="tbl"><table>
     <thead><tr><th>Fase</th><th>O que sai no fim</th><th class="num">Horas</th><th class="num">Valor</th><th>Prazo de entrega</th></tr></thead>
     <tbody>
-      <tr><td><strong>1. Teste de dados</strong></td><td>20 casos já resolvidos rodados na API. Medimos em quantos a pessoa certa aparece entre as 3 primeiras.</td><td class="num">10h</td><td class="num">R$ 2.500</td><td class="num">17/10/2026</td></tr>
-      <tr><td><strong>2. Painel essencial</strong></td><td>Instalação no GHL, nome avulso e planilha, busca, ranking e aprovação.</td><td class="num">68h</td><td class="num">R$ 17.000</td><td class="num">07/11/2026</td></tr>
-      <tr><td><strong>3. Ciclo completo</strong></td><td>Envio em ondas, retorno do GHL, cancelamento automático e tela de resultados.</td><td class="num">32h</td><td class="num">R$ 8.000</td><td class="num">21/11/2026</td></tr>
-      <tr><td><strong>4. Edital e herdeiros</strong></td><td>Leitura de PDF do edital e fluxo de credores falecidos.</td><td class="num">26h</td><td class="num">R$ 6.500</td><td class="num">28/11/2026</td></tr>
-      <tr><td><strong>5. Monitores</strong></td><td>Alerta de falência nova e acompanhamento da carteira.</td><td class="num">24h</td><td class="num">R$ 6.000</td><td class="num">12/12/2026</td></tr>
-      <tr class="total"><td>Total</td><td></td><td class="num">160h</td><td class="num">R$ 40.000</td><td></td></tr>
+      <tr><td><strong>1. Teste de dados</strong></td><td>20 casos já resolvidos rodados na API. Medimos em quantos a pessoa certa aparece entre as 3 primeiras.</td><td class="num">20h</td><td class="num">R$ 5.000</td><td class="num">17/10/2026</td></tr>
+      <tr><td><strong>2. Painel essencial</strong></td><td>Instalação na Prisma, nome avulso e planilha, busca, ranking e aprovação.</td><td class="num">136h</td><td class="num">R$ 34.000</td><td class="num">07/11/2026</td></tr>
+      <tr><td><strong>3. Ciclo completo</strong></td><td>Envio em ondas, retorno da Prisma, cancelamento automático e tela de resultados.</td><td class="num">64h</td><td class="num">R$ 16.000</td><td class="num">21/11/2026</td></tr>
+      <tr><td><strong>4. Edital e herdeiros</strong></td><td>Leitura de PDF do edital e fluxo de credores falecidos.</td><td class="num">52h</td><td class="num">R$ 13.000</td><td class="num">28/11/2026</td></tr>
+      <tr><td><strong>5. Monitores</strong></td><td>Alerta de falência nova e acompanhamento da carteira.</td><td class="num">48h</td><td class="num">R$ 12.000</td><td class="num">12/12/2026</td></tr>
+      <tr class="total"><td>Total</td><td></td><td class="num">320h</td><td class="num">R$ 80.000</td><td></td></tr>
     </tbody>
   </table></div>
   <p class="verdict">Regra da fase 1: se a pessoa certa ficar entre as 3 primeiras em menos de 60% dos casos, somamos outra fonte de dados antes de seguir.</p>
@@ -437,27 +437,27 @@ tr.total td{font-weight:600;background:var(--bg)}
   <div class="price">
     <div class="card">
       <span class="eyebrow">Desenvolvimento</span>
-      <b>R$ 40.000</b>
+      <b>R$ 80.000</b>
       <ul>
-        <li>Fase 1: R$ 2.500 à vista, na aprovação</li>
-        <li>Se a fase 1 passar: R$ 11.250 de entrada</li>
-        <li>R$ 15.000 na entrega da fase 2</li>
-        <li>R$ 11.250 na entrega final</li>
+        <li>Fase 1: R$ 5.000 à vista, na aprovação</li>
+        <li>Se a fase 1 passar: R$ 22.500 de entrada</li>
+        <li>R$ 30.000 na entrega da fase 2</li>
+        <li>R$ 22.500 na entrega final</li>
       </ul>
     </div>
     <div class="card">
       <span class="eyebrow">Manutenção mensal</span>
-      <b>R$ 1.500</b>
+      <b>R$ 3.000</b>
       <ul>
         <li>Servidor e banco de dados, com backup</li>
         <li>Correção de erros sem limite de horas</li>
-        <li>Ajustes quando AP Informação ou GHL mudarem</li>
-        <li>Até 4h de melhorias por mês</li>
+        <li>Ajustes quando AP Informação ou Prisma mudarem</li>
+        <li>Até 8h de melhorias por mês</li>
         <li>Começa na entrega da fase 2</li>
       </ul>
     </div>
   </div>
-  <p class="meta">Pagos direto pelo escritório, fora deste valor: plano da AP Informação, leitura de PDF por IA (centavos por documento) e o WhatsApp oficial no GHL. Funcionalidade nova fora do escopo: R$ 250 por hora.</p>
+  <p class="meta">Pagos direto pelo escritório, fora deste valor: plano da AP Informação, leitura de PDF por IA (centavos por documento) e o WhatsApp oficial na Prisma. Funcionalidade nova fora do escopo: R$ 250 por hora.</p>
 </section>
 
 <section>
@@ -522,7 +522,7 @@ tr.total td{font-weight:600;background:var(--bg)}
     document.getElementById('o-pct').textContent=p.value+'%';
     document.getElementById('r-mes').textContent=fmt(n*m);
     document.getElementById('r-ano').textContent=fmt(n*m*12);
-    document.getElementById('r-pay').textContent='O investimento de R$ 40.000 se paga com '+Math.ceil(40000/m)+' créditos.';
+    document.getElementById('r-pay').textContent='O investimento de R$ 80.000 se paga com '+Math.ceil(80000/m)+' créditos.';
   }
   [q,v,p].forEach(function(el){el.addEventListener('input',calc)});
   calc();
